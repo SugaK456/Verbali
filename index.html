@@ -196,10 +196,10 @@
      Incolla qui i due valori del tuo progetto Supabase.
      Li trovi in Supabase → Project Settings → API.
   ======================================================= */
- var SUPABASE_URL      = "https://euotbqnbfwanqomqqaox.supabase.co";
-var SUPABASE_ANON_KEY = "sb_publishable_YOOlbhZ4YdRIfemtYj8Y7w__J5r21vB";
-var ADMIN_NAME        = "Suga";
-var BUCKET            = "verbali";
+  var SUPABASE_URL      = "https://euotbqnbfwanqomqqaox.supabase.co";
+  var SUPABASE_ANON_KEY = "sb_publishable_YOOlbhZ4YdRIfemtYj8Y7w__J5r21vB";
+  var ADMIN_NAME        = "Suga";   // chi entra con questo nome vede l'area admin
+  var BUCKET            = "verbali";
   /* ===================================================== */
 
   // ---- helpers ----
@@ -228,6 +228,8 @@ var BUCKET            = "verbali";
   }
 
   // ---- boot ----
+  SUPABASE_URL = (SUPABASE_URL||"").trim().replace(/\/+$/,"").replace(/\/rest\/v1$/i,"").replace(/\/+$/,"");
+  SUPABASE_ANON_KEY = (SUPABASE_ANON_KEY||"").trim();
   if(!SUPABASE_URL || !SUPABASE_ANON_KEY || !window.supabase){ setView('view-setup'); return; }
   try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
   catch(e){ setView('view-setup'); return; }
@@ -237,7 +239,10 @@ var BUCKET            = "verbali";
   // ---- login ----
   $('name-go').addEventListener('click', submitName);
   $('name-input').addEventListener('keydown', function(e){ if(e.key==='Enter') submitName(); });
-  $('logout').addEventListener('click', function(){ lsDel('readerName'); readerName=''; isAdmin=false; location.reload(); });
+  $('logout').addEventListener('click', function(){
+    if(current && !sessionSaved){ if(tickT){ clearInterval(tickT); tickT=null; } logSession(current,(Date.now()-startedAt)/1000); }
+    lsDel('readerName'); readerName=''; isAdmin=false; location.reload();
+  });
   function submitName(){
     var v=$('name-input').value.trim();
     if(v.length<2){ $('name-input').focus(); return; }
@@ -324,11 +329,15 @@ var BUCKET            = "verbali";
   }
   function fallback(url){ return '<div class="empty">Non riesco a mostrare il PDF qui dentro.<br><a class="btn btn-ghost" style="margin-top:12px; display:inline-flex" href="'+esc(url)+'" target="_blank" rel="noopener">Apri il PDF in una nuova scheda</a></div>'; }
 
-  async function logSession(v,dur){
+  function logSession(v,dur){
     if(sessionSaved) return; sessionSaved=true;
-    if(!sb||!v||isAdmin||dur<1) return;
+    if(!v||isAdmin||dur<1) return;
     try{
-      await sb.from('sessions').insert({ reader_name:readerName, verbale_id:v.id, verbale_title:v.title||'', duration_sec:Math.round(dur), started_at:new Date(startedAt).toISOString(), ended_at:new Date().toISOString() });
+      fetch(SUPABASE_URL+'/rest/v1/sessions', {
+        method:'POST', keepalive:true,
+        headers:{ 'apikey':SUPABASE_ANON_KEY, 'Authorization':'Bearer '+SUPABASE_ANON_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+        body: JSON.stringify({ reader_name:readerName, verbale_id:v.id, verbale_title:(v.title||''), duration_sec:Math.round(dur), started_at:new Date(startedAt).toISOString(), ended_at:new Date().toISOString() })
+      }).catch(function(){});
     }catch(e){ console.warn('logSession',e); }
   }
 
@@ -344,7 +353,7 @@ var BUCKET            = "verbali";
     if(!file){ showMsg('Scegli un file PDF.'); return; }
     if(file.type && file.type.indexOf('pdf')===-1){ showMsg('Il file deve essere un PDF.'); return; }
     var title=(titleEl.value.trim())||file.name.replace(/\.pdf$/i,'');
-    var path=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    var path='v_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.pdf';
     btn.disabled=true; showMsg('Caricamento in corso…');
     try{
       var up=await sb.storage.from(BUCKET).upload(path,file,{contentType:'application/pdf',upsert:false});
@@ -379,12 +388,10 @@ var BUCKET            = "verbali";
     }catch(e){ console.warn('loadStats',e); host.innerHTML='<p class="hint" style="padding:0 0 6px">Impossibile caricare i dati.</p>'; }
   }
 
-  // best-effort: se chi legge lascia la scheda, registra comunque
-  document.addEventListener('visibilitychange', function(){
-    if(document.visibilityState==='hidden' && current && !sessionSaved){
-      if(tickT){ clearInterval(tickT); tickT=null; }
-      logSession(current,(Date.now()-startedAt)/1000);
-    }
+  // Registra il tempo anche alla chiusura o all'uscita dalla pagina
+  // (oltre al pulsante "Torna all'elenco" e al tasto "esci").
+  window.addEventListener('pagehide', function(){
+    if(current && !sessionSaved){ logSession(current,(Date.now()-startedAt)/1000); }
   });
 })();
 </script>
