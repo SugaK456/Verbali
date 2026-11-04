@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Verbali · Residenza Preziosina</title>
+<title>Minutes · Residenza Preziosina</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -118,9 +118,9 @@
 
 <header class="app">
   <div class="bar">
-    <div class="brand"><span class="t">Verbali</span><span class="s">Residenza Preziosina</span></div>
+    <div class="brand"><span class="t">Minutes</span><span class="s">Residenza Preziosina</span></div>
     <div class="spacer"></div>
-    <span id="user-chip" class="chip" style="display:none"><span class="dot"></span><span id="user-name">—</span><button id="logout">esci</button></span>
+    <span id="user-chip" class="chip" style="display:none"><span class="dot"></span><span id="user-name">—</span><button id="logout">log out</button></span>
   </div>
 </header>
 
@@ -128,47 +128,47 @@
   <!-- SETUP (quando manca la configurazione) -->
   <section id="view-setup" style="display:none">
     <div class="notice">
-      <div class="eyebrow">Configurazione</div>
-      <h2 style="margin:8px 0 12px">Manca il collegamento al database</h2>
-      <p>Apri <code>index.html</code> e incolla l'URL e la chiave <em>anon</em> del tuo progetto Supabase nella sezione <code>CONFIG</code> in cima allo script. Le istruzioni complete sono nel file <code>README.md</code>.</p>
+      <div class="eyebrow">Setup</div>
+      <h2 style="margin:8px 0 12px">Database connection missing</h2>
+      <p>Open <code>index.html</code> and paste your Supabase project URL and <em>anon</em> key into the <code>CONFIG</code> section at the top of the script. Full instructions are in <code>README.md</code>.</p>
     </div>
   </section>
 
   <!-- LOGIN -->
   <section id="view-login" style="display:none">
-    <div><div class="eyebrow">Benvenuto</div><h1 style="font-size:34px; margin-top:8px">Leggi i verbali</h1></div>
+    <div><div class="eyebrow">Welcome</div><h1 style="font-size:34px; margin-top:8px">Read the minutes</h1></div>
     <div class="card">
-      <label class="fld">Il tuo nome e cognome
-        <input type="text" id="name-input" placeholder="Es. Mario Rossi" autocomplete="name">
+      <label class="fld">Your first and last name
+        <input type="text" id="name-input" placeholder="e.g. John Smith" autocomplete="name">
       </label>
-      <button class="btn btn-primary" id="name-go" style="justify-content:center">Entra</button>
-      <p class="hint">Il nome serve solo a registrare chi legge quale verbale.</p>
+      <button class="btn btn-primary" id="name-go" style="justify-content:center">Enter</button>
+      <p class="hint">Your name is only used to record who reads which minutes.</p>
     </div>
   </section>
 
   <!-- LIST -->
   <section id="view-list" style="display:none">
     <div id="admin-area" style="display:none">
-      <div class="section-head"><h2>Area amministratore</h2></div>
+      <div class="section-head"><h2>Admin area</h2></div>
       <div class="card admin-box">
-        <div class="eyebrow">Carica un verbale</div>
+        <div class="eyebrow">Upload minutes</div>
         <div class="row">
-          <label class="fld">Titolo<input type="text" id="up-title" placeholder="Es. Riunione cucina — 12/11"></label>
-          <label class="fld">File PDF<input type="file" id="up-file" accept="application/pdf"></label>
-          <button class="btn btn-primary" id="up-go">Carica</button>
+          <label class="fld">Title<input type="text" id="up-title" placeholder="e.g. Kitchen meeting — 12/11"></label>
+          <label class="fld">PDF file<input type="file" id="up-file" accept="application/pdf"></label>
+          <button class="btn btn-primary" id="up-go">Upload</button>
         </div>
         <p class="hint" id="up-msg" style="display:none"></p>
       </div>
       <div class="card" style="margin-top:14px">
         <details class="stats">
-          <summary><span class="tri">▶</span> Tempi di lettura <span class="rf" id="stats-refresh">aggiorna</span></summary>
-          <div id="stats-body" class="table-scroll"><p class="hint" style="padding:0 0 6px">Apri per caricare i dati…</p></div>
+          <summary><span class="tri">▶</span> Reading times <span class="rf" id="stats-refresh">refresh</span></summary>
+          <div id="stats-body" class="table-scroll"><p class="hint" style="padding:0 0 6px">Open to load the data…</p></div>
         </details>
       </div>
     </div>
-    <div class="section-head"><h2>Verbali</h2><span class="hint" id="list-count"></span></div>
+    <div class="section-head"><h2>Minutes</h2><span class="hint" id="list-count"></span></div>
     <div id="vlist" class="vlist"></div>
-    <div id="list-empty" class="empty" style="display:none">Nessun verbale ancora disponibile.</div>
+    <div id="list-empty" class="empty" style="display:none">No minutes available yet.</div>
   </section>
 </div>
 
@@ -178,11 +178,11 @@
     <span class="tt" id="reader-title">—</span>
     <span class="timer"><span class="pulse"></span><span id="timer">00:00</span></span>
   </div></div>
-  <div id="pdf-host"><p class="hint">Caricamento…</p></div>
+  <div id="pdf-host"><p class="hint">Loading…</p></div>
   <div class="reader-bottom"><div class="inner">
-    <button class="btn btn-ghost" id="back-btn">← Torna all'elenco</button>
+    <button class="btn btn-ghost" id="back-btn">← Back to list</button>
     <span class="fill"></span>
-    <span class="hint">Il tempo viene registrato quando torni all'elenco.</span>
+    <span class="hint">Your time is recorded when you go back to the list.</span>
   </div></div>
 </section>
 
@@ -193,12 +193,12 @@
   "use strict";
 
   /* ======================= CONFIG =======================
-     Incolla qui i due valori del tuo progetto Supabase.
-     Li trovi in Supabase → Project Settings → API.
+     Paste here the two values from your Supabase project.
+     You find them in Supabase -> Project Settings -> API.
   ======================================================= */
   var SUPABASE_URL      = "https://euotbqnbfwanqomqqaox.supabase.co";
   var SUPABASE_ANON_KEY = "sb_publishable_YOOlbhZ4YdRIfemtYj8Y7w__J5r21vB";
-  var ADMIN_NAME        = "Suga";   // chi entra con questo nome vede l'area admin
+  var ADMIN_NAME        = "Suga";   // whoever enters with this name sees the admin area
   var BUCKET            = "verbali";
   /* ===================================================== */
 
@@ -209,7 +209,7 @@
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function fmt(sec){ sec=Math.max(0,Math.round(sec)); var m=Math.floor(sec/60),s=sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
   function fmtLong(sec){ sec=Math.max(0,Math.round(sec)); var m=Math.floor(sec/60),s=sec%60; if(m===0) return s+'s'; return m+'m '+(s<10?'0':'')+s+'s'; }
-  function dateStr(ts){ try{ return new Date(ts).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+  function dateStr(ts){ try{ return new Date(ts).toLocaleString('en-GB',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
   var toastT; function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2600); }
   function lsGet(k){ try{ return localStorage.getItem(k);}catch(e){return null;} }
   function lsSet(k,v){ try{ localStorage.setItem(k,v);}catch(e){} }
@@ -266,20 +266,20 @@
       var res = await sb.from('verbali').select('*').order('created_at',{ascending:false});
       if(res.error) throw res.error;
       verbali = (res.data||[]).map(function(r){ return {id:r.id, title:r.title, path:r.path, url:publicUrl(r.path), created_at:r.created_at}; });
-    }catch(e){ console.warn('loadVerbali',e); toast('Errore nel caricare i verbali'); verbali=[]; }
+    }catch(e){ console.warn('loadVerbali',e); toast('Error loading the minutes'); verbali=[]; }
     renderList();
   }
   function renderList(){
     var host=$('vlist'); if(!host) return;
-    $('list-count').textContent = verbali.length? (verbali.length+' disponibili'):'';
+    $('list-count').textContent = verbali.length? (verbali.length+' available'):'';
     if(!verbali.length){ host.innerHTML=''; $('list-empty').style.display='block'; return; }
     $('list-empty').style.display='none';
     host.innerHTML = verbali.map(function(v){
-      var del = isAdmin ? '<button class="vdel" data-del="'+esc(v.id)+'" title="Elimina">✕</button>' : '';
+      var del = isAdmin ? '<button class="vdel" data-del="'+esc(v.id)+'" title="Delete">✕</button>' : '';
       return '<div style="display:flex; gap:8px; align-items:stretch">'
         + '<button class="vitem" data-open="'+esc(v.id)+'"><span class="ic">'+pdfIcon()+'</span>'
-        + '<span class="meta"><span class="tt">'+esc(v.title||'Senza titolo')+'</span>'
-        + '<span class="ss">'+(v.created_at?('Caricato il '+dateStr(v.created_at)):'')+'</span></span>'
+        + '<span class="meta"><span class="tt">'+esc(v.title||'Untitled')+'</span>'
+        + '<span class="ss">'+(v.created_at?('Uploaded '+dateStr(v.created_at)):'')+'</span></span>'
         + '<span class="go">→</span></button>'+del+'</div>';
     }).join('');
     Array.prototype.forEach.call(host.querySelectorAll('[data-open]'),function(b){ b.addEventListener('click',function(){ openVerbale(b.getAttribute('data-open')); }); });
@@ -291,7 +291,7 @@
   function openVerbale(id){
     var v=verbali.filter(function(x){return x.id===id;})[0]; if(!v) return;
     current=v; sessionSaved=false; startedAt=Date.now();
-    $('reader-title').textContent=v.title||'Verbale'; $('timer').textContent='00:00';
+    $('reader-title').textContent=v.title||'Minutes'; $('timer').textContent='00:00';
     setView('view-reader');
     tickT=setInterval(function(){ $('timer').textContent=fmt((Date.now()-startedAt)/1000); },1000);
     renderPdf(v.url);
@@ -302,11 +302,11 @@
     var dur=(Date.now()-startedAt)/1000, v=current;
     logSession(v,dur); current=null; $('pdf-host').innerHTML='';
     setView('view-list'); renderList();
-    if(v) toast('Lettura registrata · '+fmtLong(dur));
+    if(v) toast('Reading recorded · '+fmtLong(dur));
   }
   async function renderPdf(url){
-    var host=$('pdf-host'); host.innerHTML='<p class="hint">Caricamento del PDF…</p>';
-    if(!url){ host.innerHTML='<p class="hint">PDF non disponibile.</p>'; return; }
+    var host=$('pdf-host'); host.innerHTML='<p class="hint">Loading the PDF…</p>';
+    if(!url){ host.innerHTML='<p class="hint">PDF not available.</p>'; return; }
     var data;
     try{ var r=await fetch(url); if(!r.ok) throw 0; data=await r.arrayBuffer(); }
     catch(e){ host.innerHTML=fallback(url); return; }
@@ -327,7 +327,7 @@
       }
     }catch(e){ console.warn('pdf',e); host.innerHTML=fallback(url); }
   }
-  function fallback(url){ return '<div class="empty">Non riesco a mostrare il PDF qui dentro.<br><a class="btn btn-ghost" style="margin-top:12px; display:inline-flex" href="'+esc(url)+'" target="_blank" rel="noopener">Apri il PDF in una nuova scheda</a></div>'; }
+  function fallback(url){ return '<div class="empty">Unable to display the PDF here.<br><a class="btn btn-ghost" style="margin-top:12px; display:inline-flex" href="'+esc(url)+'" target="_blank" rel="noopener">Open the PDF in a new tab</a></div>'; }
 
   function logSession(v,dur){
     if(sessionSaved) return; sessionSaved=true;
@@ -350,46 +350,46 @@
   async function doUpload(){
     var fileEl=$('up-file'), titleEl=$('up-title'), btn=$('up-go');
     var file=fileEl.files&&fileEl.files[0];
-    if(!file){ showMsg('Scegli un file PDF.'); return; }
-    if(file.type && file.type.indexOf('pdf')===-1){ showMsg('Il file deve essere un PDF.'); return; }
+    if(!file){ showMsg('Choose a PDF file.'); return; }
+    if(file.type && file.type.indexOf('pdf')===-1){ showMsg('The file must be a PDF.'); return; }
     var title=(titleEl.value.trim())||file.name.replace(/\.pdf$/i,'');
     var path='v_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.pdf';
-    btn.disabled=true; showMsg('Caricamento in corso…');
+    btn.disabled=true; showMsg('Uploading…');
     try{
       var up=await sb.storage.from(BUCKET).upload(path,file,{contentType:'application/pdf',upsert:false});
       if(up.error) throw up.error;
       var ins=await sb.from('verbali').insert({ title:title, path:path });
       if(ins.error) throw ins.error;
-      titleEl.value=''; fileEl.value=''; showMsg('Caricato ✓');
+      titleEl.value=''; fileEl.value=''; showMsg('Uploaded ✓');
       loadVerbali();
-    }catch(e){ console.warn(e); showMsg('Errore nel caricamento: '+(e&&e.message?e.message:'riprova')); }
+    }catch(e){ console.warn(e); showMsg('Upload error: '+(e&&e.message?e.message:'try again')); }
     btn.disabled=false;
   }
   function showMsg(t){ var m=$('up-msg'); m.textContent=t; m.style.display='block'; }
   async function deleteVerbale(id){
     var v=verbali.filter(function(x){return x.id===id;})[0]; if(!v) return;
-    if(!window.confirm('Eliminare "'+(v.title||'questo verbale')+'"?')) return;
+    if(!window.confirm('Delete "'+(v.title||'these minutes')+'"?')) return;
     try{
       var d=await sb.from('verbali').delete().eq('id',id); if(d.error) throw d.error;
       if(v.path){ try{ await sb.storage.from(BUCKET).remove([v.path]); }catch(e){} }
-      toast('Verbale eliminato'); loadVerbali();
-    }catch(e){ console.warn(e); toast('Errore nell\'eliminazione'); }
+      toast('Minutes deleted'); loadVerbali();
+    }catch(e){ console.warn(e); toast('Error deleting'); }
   }
   async function loadStats(){
-    var host=$('stats-body'); host.innerHTML='<p class="hint" style="padding:0 0 6px">Caricamento…</p>';
+    var host=$('stats-body'); host.innerHTML='<p class="hint" style="padding:0 0 6px">Loading…</p>';
     try{
       var res=await sb.from('sessions').select('*').order('ended_at',{ascending:false}).limit(1000);
       if(res.error) throw res.error;
-      var rows=(res.data||[]).map(function(r){ return {name:r.reader_name||'(senza nome)', title:r.verbale_title||'—', dur:r.duration_sec||0, when:r.ended_at}; });
-      if(!rows.length){ host.innerHTML='<p class="hint" style="padding:0 0 6px">Ancora nessuna lettura registrata.</p>'; return; }
-      host.innerHTML='<table><thead><tr><th>Lettore</th><th>Verbale</th><th>Durata</th><th>Quando</th></tr></thead><tbody>'
+      var rows=(res.data||[]).map(function(r){ return {name:r.reader_name||'(no name)', title:r.verbale_title||'—', dur:r.duration_sec||0, when:r.ended_at}; });
+      if(!rows.length){ host.innerHTML='<p class="hint" style="padding:0 0 6px">No reading recorded yet.</p>'; return; }
+      host.innerHTML='<table><thead><tr><th>Reader</th><th>Minutes</th><th>Duration</th><th>When</th></tr></thead><tbody>'
         + rows.map(function(r){ return '<tr><td class="nm">'+esc(r.name)+'</td><td>'+esc(r.title)+'</td><td class="dur">'+fmtLong(r.dur)+'</td><td>'+esc(dateStr(r.when))+'</td></tr>'; }).join('')
         + '</tbody></table>';
-    }catch(e){ console.warn('loadStats',e); host.innerHTML='<p class="hint" style="padding:0 0 6px">Impossibile caricare i dati.</p>'; }
+    }catch(e){ console.warn('loadStats',e); host.innerHTML='<p class="hint" style="padding:0 0 6px">Could not load the data.</p>'; }
   }
 
-  // Registra il tempo anche alla chiusura o all'uscita dalla pagina
-  // (oltre al pulsante "Torna all'elenco" e al tasto "esci").
+  // Also record the time when the page is closed or left
+  // (in addition to the "Back to list" button and the "log out" button).
   window.addEventListener('pagehide', function(){
     if(current && !sessionSaved){ logSession(current,(Date.now()-startedAt)/1000); }
   });
