@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Verbali · Residenza Preziosina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    color-scheme: light dark;
+    --bg:#F6F1E8; --surface:#FBF8F1; --surface2:#EFE8DA;
+    --ink:#2A211B; --body:#5A4E42; --muted:#8A7B6A;
+    --accent:#C0583F; --accent-deep:#9A3D28; --on-accent:#FBF4EE;
+    --border:#E4DAC6; --border-soft:#ECE3D4;
+    --shadow:0 1px 2px rgba(42,33,27,.06),0 8px 24px rgba(42,33,27,.06);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1E1915; --surface:#272019; --surface2:#2F271F;
+      --ink:#F6F1E8; --body:#CBBBA6; --muted:#9C8C78;
+      --accent:#D2694F; --accent-deep:#E0A48F; --on-accent:#1E1915;
+      --border:#3A3127; --border-soft:#342B22;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1E1915; --surface:#272019; --surface2:#2F271F;
+    --ink:#F6F1E8; --body:#CBBBA6; --muted:#9C8C78;
+    --accent:#D2694F; --accent-deep:#E0A48F; --on-accent:#1E1915;
+    --border:#3A3127; --border-soft:#342B22;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg); color:var(--body); font-family:'DM Sans',system-ui,-apple-system,Arial,sans-serif; line-height:1.5; min-height:100vh; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px)}
+  h1,h2,h3{font-family:'Fraunces',Georgia,serif; color:var(--ink); font-weight:600; line-height:1.1; margin:0}
+  a{color:var(--accent-deep)}
+  code{background:var(--surface2); padding:1px 6px; border-radius:6px; font-size:.9em}
+  .wrap{max-width:900px; margin:0 auto; padding:24px 20px 72px}
+  .eyebrow{font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--accent-deep); font-weight:600}
+  header.app{position:sticky; top:0; z-index:5; background:color-mix(in srgb,var(--bg) 88%,transparent); backdrop-filter:saturate(1.1) blur(8px); border-bottom:1px solid var(--border-soft); padding-top:env(safe-area-inset-top,0px)}
+  body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); background:var(--bg); z-index:10}
+  .bar{max-width:900px; margin:0 auto; padding:14px 20px; display:flex; align-items:center; gap:12px}
+  .bar .brand{display:flex; flex-direction:column; gap:1px; min-width:0}
+  .bar .brand .t{font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:20px; color:var(--ink)}
+  .bar .brand .s{font-size:12px; color:var(--muted)}
+  .spacer{flex:1}
+  .chip{display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:500; color:var(--body); background:var(--surface2); border:1px solid var(--border-soft); border-radius:999px; padding:6px 12px}
+  .chip.admin{color:var(--accent-deep)}
+  .chip button{border:none; background:transparent; color:var(--muted); cursor:pointer; font-size:12px; padding:0 0 0 4px; border-left:1px solid var(--border); margin-left:4px}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--accent)}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+  .btn{font-family:inherit; font-size:15px; font-weight:600; border-radius:10px; border:1px solid transparent; padding:11px 18px; cursor:pointer; transition:filter .15s,background .15s; display:inline-flex; align-items:center; gap:8px}
+  .btn-primary{background:var(--accent); color:var(--on-accent)}
+  .btn-primary:hover{filter:brightness(1.05)}
+  .btn-ghost{background:transparent; color:var(--ink); border-color:var(--border)}
+  .btn-ghost:hover{background:var(--surface2)}
+  .btn:disabled{opacity:.5; cursor:default}
+  input[type=text],input[type=file]{font-family:inherit; font-size:15px; color:var(--ink); background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:11px 14px; width:100%}
+  input::placeholder{color:var(--muted)}
+  label.fld{display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--muted); font-weight:500}
+  .hint{color:var(--muted); font-size:14px}
+  .empty{text-align:center; color:var(--muted); padding:40px 16px}
+  #view-login{max-width:420px; margin:8vh auto 0; display:flex; flex-direction:column; gap:20px}
+  #view-login .card{padding:28px; display:flex; flex-direction:column; gap:16px}
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:28px 2px 12px}
+  .section-head h2{font-size:26px}
+  .vlist{display:flex; flex-direction:column; gap:10px}
+  .vitem{display:flex; align-items:center; gap:14px; padding:16px 18px; cursor:pointer; text-align:left; width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); transition:border-color .15s,transform .05s}
+  .vitem:hover{border-color:var(--accent)}
+  .vitem:active{transform:translateY(1px)}
+  .vitem .ic{width:40px; height:40px; border-radius:10px; background:var(--surface2); display:grid; place-items:center; flex:none; color:var(--accent-deep)}
+  .vitem .meta{min-width:0; flex:1}
+  .vitem .meta .tt{font-family:'Fraunces',Georgia,serif; font-weight:600; color:var(--ink); font-size:18px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .vitem .meta .ss{font-size:13px; color:var(--muted)}
+  .vitem .go{color:var(--muted); flex:none}
+  .vdel{flex:none; border:none; background:transparent; color:var(--muted); cursor:pointer; font-size:18px; padding:6px; border-radius:8px}
+  .vdel:hover{color:var(--accent); background:var(--surface2)}
+  .admin-box{padding:20px; display:flex; flex-direction:column; gap:14px}
+  .admin-box .row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end}
+  .admin-box .row>*{flex:1; min-width:180px}
+  details.stats>summary{cursor:pointer; font-weight:600; color:var(--ink); padding:14px 18px; list-style:none; display:flex; align-items:center; gap:8px}
+  details.stats>summary::-webkit-details-marker{display:none}
+  details.stats>summary .tri{transition:transform .2s; color:var(--muted)}
+  details.stats[open]>summary .tri{transform:rotate(90deg)}
+  details.stats>summary .rf{margin-left:auto; font-size:13px; color:var(--accent-deep); font-weight:600}
+  .table-scroll{overflow-x:auto; padding:0 18px 18px}
+  table{border-collapse:collapse; width:100%; font-size:14px}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--border-soft); white-space:nowrap}
+  th{color:var(--muted); font-weight:600; font-size:12px; letter-spacing:.4px; text-transform:uppercase}
+  td .nm{color:var(--ink); font-weight:600}
+  .dur{font-variant-numeric:tabular-nums; font-weight:600; color:var(--ink)}
+  #view-reader{display:none}
+  .reader-top{position:sticky; top:63px; z-index:4; background:color-mix(in srgb,var(--bg) 92%,transparent); backdrop-filter:blur(6px); border-bottom:1px solid var(--border-soft); padding:12px 0}
+  .reader-top .inner{max-width:900px; margin:0 auto; padding:0 20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+  .reader-top .tt{font-family:'Fraunces',Georgia,serif; font-weight:600; color:var(--ink); font-size:17px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1}
+  .timer{display:inline-flex; align-items:center; gap:8px; font-variant-numeric:tabular-nums; font-weight:700; color:var(--accent-deep); background:var(--surface2); border:1px solid var(--border-soft); border-radius:999px; padding:6px 14px; font-size:15px}
+  .pulse{width:8px; height:8px; border-radius:50%; background:var(--accent); animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  #pdf-host{max-width:900px; margin:0 auto; padding:18px 20px 40px}
+  .pdf-page{display:block; width:100%; height:auto; margin:0 auto 16px; border:1px solid var(--border); border-radius:8px; box-shadow:var(--shadow); background:#fff}
+  .reader-bottom{position:sticky; bottom:0; z-index:4; background:color-mix(in srgb,var(--bg) 92%,transparent); backdrop-filter:blur(6px); border-top:1px solid var(--border-soft); padding:14px 0; padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+  .reader-bottom .inner{max-width:900px; margin:0 auto; padding:0 20px; display:flex; gap:12px; align-items:center}
+  .reader-bottom .inner .fill{flex:1}
+  .toast{position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:12px 18px; border-radius:999px; font-size:14px; font-weight:500; box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:opacity .25s; z-index:50}
+  .toast.show{opacity:1}
+  .notice{max-width:560px; margin:9vh auto 0; color:var(--body)}
+  .notice ol{padding-left:20px} .notice li{margin:6px 0}
+  @media (max-width:560px){ .section-head h2{font-size:22px} .reader-top .tt{flex-basis:100%} }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="bar">
+    <div class="brand"><span class="t">Verbali</span><span class="s">Residenza Preziosina</span></div>
+    <div class="spacer"></div>
+    <span id="user-chip" class="chip" style="display:none"><span class="dot"></span><span id="user-name">—</span><button id="logout">esci</button></span>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- SETUP (quando manca la configurazione) -->
+  <section id="view-setup" style="display:none">
+    <div class="notice">
+      <div class="eyebrow">Configurazione</div>
+      <h2 style="margin:8px 0 12px">Manca il collegamento al database</h2>
+      <p>Apri <code>index.html</code> e incolla l'URL e la chiave <em>anon</em> del tuo progetto Supabase nella sezione <code>CONFIG</code> in cima allo script. Le istruzioni complete sono nel file <code>README.md</code>.</p>
+    </div>
+  </section>
+
+  <!-- LOGIN -->
+  <section id="view-login" style="display:none">
+    <div><div class="eyebrow">Benvenuto</div><h1 style="font-size:34px; margin-top:8px">Leggi i verbali</h1></div>
+    <div class="card">
+      <label class="fld">Il tuo nome e cognome
+        <input type="text" id="name-input" placeholder="Es. Mario Rossi" autocomplete="name">
+      </label>
+      <button class="btn btn-primary" id="name-go" style="justify-content:center">Entra</button>
+      <p class="hint">Il nome serve solo a registrare chi legge quale verbale.</p>
+    </div>
+  </section>
+
+  <!-- LIST -->
+  <section id="view-list" style="display:none">
+    <div id="admin-area" style="display:none">
+      <div class="section-head"><h2>Area amministratore</h2></div>
+      <div class="card admin-box">
+        <div class="eyebrow">Carica un verbale</div>
+        <div class="row">
+          <label class="fld">Titolo<input type="text" id="up-title" placeholder="Es. Riunione cucina — 12/11"></label>
+          <label class="fld">File PDF<input type="file" id="up-file" accept="application/pdf"></label>
+          <button class="btn btn-primary" id="up-go">Carica</button>
+        </div>
+        <p class="hint" id="up-msg" style="display:none"></p>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <details class="stats">
+          <summary><span class="tri">▶</span> Tempi di lettura <span class="rf" id="stats-refresh">aggiorna</span></summary>
+          <div id="stats-body" class="table-scroll"><p class="hint" style="padding:0 0 6px">Apri per caricare i dati…</p></div>
+        </details>
+      </div>
+    </div>
+    <div class="section-head"><h2>Verbali</h2><span class="hint" id="list-count"></span></div>
+    <div id="vlist" class="vlist"></div>
+    <div id="list-empty" class="empty" style="display:none">Nessun verbale ancora disponibile.</div>
+  </section>
+</div>
+
+<!-- READER -->
+<section id="view-reader">
+  <div class="reader-top"><div class="inner">
+    <span class="tt" id="reader-title">—</span>
+    <span class="timer"><span class="pulse"></span><span id="timer">00:00</span></span>
+  </div></div>
+  <div id="pdf-host"><p class="hint">Caricamento…</p></div>
+  <div class="reader-bottom"><div class="inner">
+    <button class="btn btn-ghost" id="back-btn">← Torna all'elenco</button>
+    <span class="fill"></span>
+    <span class="hint">Il tempo viene registrato quando torni all'elenco.</span>
+  </div></div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ======================= CONFIG =======================
+     Incolla qui i due valori del tuo progetto Supabase.
+     Li trovi in Supabase → Project Settings → API.
+  ======================================================= */
+  var SUPABASE_URL      = "https://euotbqnbfwanqomqqaox.supabase.co/rest/v1/";   // es. "https://abcdxyz.supabase.co"
+  var SUPABASE_ANON_KEY = "sb_publishable_YOOlbhZ4YdRIfemtYj8Y7w__J5r21vB";   // la chiave "anon public"
+  var ADMIN_NAME        = "Suga";   // chi entra con questo nome vede l'area admin
+  var BUCKET            = "verbali";
+  /* ===================================================== */
+
+  // ---- helpers ----
+  function $(id){ return document.getElementById(id); }
+  function show(id){ var el=$(id); if(el) el.style.display=(id==='view-reader')?'block':(id==='view-login'?'flex':'block'); }
+  function hide(id){ var el=$(id); if(el) el.style.display='none'; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function fmt(sec){ sec=Math.max(0,Math.round(sec)); var m=Math.floor(sec/60),s=sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+  function fmtLong(sec){ sec=Math.max(0,Math.round(sec)); var m=Math.floor(sec/60),s=sec%60; if(m===0) return s+'s'; return m+'m '+(s<10?'0':'')+s+'s'; }
+  function dateStr(ts){ try{ return new Date(ts).toLocaleString('it-IT',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; } }
+  var toastT; function toast(m){ var t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2600); }
+  function lsGet(k){ try{ return localStorage.getItem(k);}catch(e){return null;} }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v);}catch(e){} }
+  function lsDel(k){ try{ localStorage.removeItem(k);}catch(e){} }
+
+  if(window.pdfjsLib){ try{ pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; }catch(e){} }
+
+  // ---- state ----
+  var sb=null, verbali=[], readerName=lsGet('readerName')||'', isAdmin=false;
+  var current=null, startedAt=0, tickT=null, sessionSaved=false;
+
+  function setView(v){
+    ['view-setup','view-login','view-list','view-reader'].forEach(hide);
+    document.querySelector('header.app').style.display=(v==='view-setup'||v==='view-login')?'none':'';
+    show(v); window.scrollTo(0,0);
+  }
+
+  // ---- boot ----
+  if(!SUPABASE_URL || !SUPABASE_ANON_KEY || !window.supabase){ setView('view-setup'); return; }
+  try{ sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
+  catch(e){ setView('view-setup'); return; }
+
+  if(readerName){ enterApp(); } else { setView('view-login'); }
+
+  // ---- login ----
+  $('name-go').addEventListener('click', submitName);
+  $('name-input').addEventListener('keydown', function(e){ if(e.key==='Enter') submitName(); });
+  $('logout').addEventListener('click', function(){ lsDel('readerName'); readerName=''; isAdmin=false; location.reload(); });
+  function submitName(){
+    var v=$('name-input').value.trim();
+    if(v.length<2){ $('name-input').focus(); return; }
+    readerName=v; lsSet('readerName',v); enterApp();
+  }
+  function enterApp(){
+    isAdmin = readerName.trim().toLowerCase()===ADMIN_NAME.toLowerCase();
+    var chip=$('user-chip'); chip.style.display='';
+    $('user-name').textContent=readerName+(isAdmin?' · admin':'');
+    chip.classList.toggle('admin', isAdmin);
+    $('admin-area').style.display = isAdmin?'block':'none';
+    if(isAdmin){ wireAdmin(); }
+    setView('view-list');
+    loadVerbali();
+  }
+
+  // ---- verbali ----
+  function publicUrl(path){ try{ return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl; }catch(e){ return ''; } }
+  async function loadVerbali(){
+    try{
+      var res = await sb.from('verbali').select('*').order('created_at',{ascending:false});
+      if(res.error) throw res.error;
+      verbali = (res.data||[]).map(function(r){ return {id:r.id, title:r.title, path:r.path, url:publicUrl(r.path), created_at:r.created_at}; });
+    }catch(e){ console.warn('loadVerbali',e); toast('Errore nel caricare i verbali'); verbali=[]; }
+    renderList();
+  }
+  function renderList(){
+    var host=$('vlist'); if(!host) return;
+    $('list-count').textContent = verbali.length? (verbali.length+' disponibili'):'';
+    if(!verbali.length){ host.innerHTML=''; $('list-empty').style.display='block'; return; }
+    $('list-empty').style.display='none';
+    host.innerHTML = verbali.map(function(v){
+      var del = isAdmin ? '<button class="vdel" data-del="'+esc(v.id)+'" title="Elimina">✕</button>' : '';
+      return '<div style="display:flex; gap:8px; align-items:stretch">'
+        + '<button class="vitem" data-open="'+esc(v.id)+'"><span class="ic">'+pdfIcon()+'</span>'
+        + '<span class="meta"><span class="tt">'+esc(v.title||'Senza titolo')+'</span>'
+        + '<span class="ss">'+(v.created_at?('Caricato il '+dateStr(v.created_at)):'')+'</span></span>'
+        + '<span class="go">→</span></button>'+del+'</div>';
+    }).join('');
+    Array.prototype.forEach.call(host.querySelectorAll('[data-open]'),function(b){ b.addEventListener('click',function(){ openVerbale(b.getAttribute('data-open')); }); });
+    Array.prototype.forEach.call(host.querySelectorAll('[data-del]'),function(b){ b.addEventListener('click',function(e){ e.stopPropagation(); deleteVerbale(b.getAttribute('data-del')); }); });
+  }
+  function pdfIcon(){ return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>'; }
+
+  // ---- reader + timer ----
+  function openVerbale(id){
+    var v=verbali.filter(function(x){return x.id===id;})[0]; if(!v) return;
+    current=v; sessionSaved=false; startedAt=Date.now();
+    $('reader-title').textContent=v.title||'Verbale'; $('timer').textContent='00:00';
+    setView('view-reader');
+    tickT=setInterval(function(){ $('timer').textContent=fmt((Date.now()-startedAt)/1000); },1000);
+    renderPdf(v.url);
+  }
+  $('back-btn').addEventListener('click', leaveReader);
+  function leaveReader(){
+    if(tickT){ clearInterval(tickT); tickT=null; }
+    var dur=(Date.now()-startedAt)/1000, v=current;
+    logSession(v,dur); current=null; $('pdf-host').innerHTML='';
+    setView('view-list'); renderList();
+    if(v) toast('Lettura registrata · '+fmtLong(dur));
+  }
+  async function renderPdf(url){
+    var host=$('pdf-host'); host.innerHTML='<p class="hint">Caricamento del PDF…</p>';
+    if(!url){ host.innerHTML='<p class="hint">PDF non disponibile.</p>'; return; }
+    var data;
+    try{ var r=await fetch(url); if(!r.ok) throw 0; data=await r.arrayBuffer(); }
+    catch(e){ host.innerHTML=fallback(url); return; }
+    if(!window.pdfjsLib){ host.innerHTML=fallback(url); return; }
+    try{
+      var pdf=await pdfjsLib.getDocument({data:data}).promise; host.innerHTML='';
+      var width=host.clientWidth||820;
+      for(var i=1;i<=pdf.numPages;i++){
+        var page=await pdf.getPage(i);
+        var base=page.getViewport({scale:1});
+        var scale=Math.min(2.2,Math.max(.4,width/base.width));
+        var vp=page.getViewport({scale:scale});
+        var ratio=Math.min(window.devicePixelRatio||1,2);
+        var c=document.createElement('canvas'); c.className='pdf-page';
+        c.width=Math.floor(vp.width*ratio); c.height=Math.floor(vp.height*ratio);
+        host.appendChild(c);
+        await page.render({canvasContext:c.getContext('2d'), viewport:vp, transform:ratio!==1?[ratio,0,0,ratio,0,0]:null}).promise;
+      }
+    }catch(e){ console.warn('pdf',e); host.innerHTML=fallback(url); }
+  }
+  function fallback(url){ return '<div class="empty">Non riesco a mostrare il PDF qui dentro.<br><a class="btn btn-ghost" style="margin-top:12px; display:inline-flex" href="'+esc(url)+'" target="_blank" rel="noopener">Apri il PDF in una nuova scheda</a></div>'; }
+
+  async function logSession(v,dur){
+    if(sessionSaved) return; sessionSaved=true;
+    if(!sb||!v||isAdmin||dur<1) return;
+    try{
+      await sb.from('sessions').insert({ reader_name:readerName, verbale_id:v.id, verbale_title:v.title||'', duration_sec:Math.round(dur), started_at:new Date(startedAt).toISOString(), ended_at:new Date().toISOString() });
+    }catch(e){ console.warn('logSession',e); }
+  }
+
+  // ---- admin ----
+  function wireAdmin(){
+    $('up-go').addEventListener('click', doUpload);
+    $('stats-refresh').addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); loadStats(); });
+    document.querySelector('details.stats').addEventListener('toggle', function(e){ if(e.target.open) loadStats(); });
+  }
+  async function doUpload(){
+    var fileEl=$('up-file'), titleEl=$('up-title'), btn=$('up-go');
+    var file=fileEl.files&&fileEl.files[0];
+    if(!file){ showMsg('Scegli un file PDF.'); return; }
+    if(file.type && file.type.indexOf('pdf')===-1){ showMsg('Il file deve essere un PDF.'); return; }
+    var title=(titleEl.value.trim())||file.name.replace(/\.pdf$/i,'');
+    var path=Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    btn.disabled=true; showMsg('Caricamento in corso…');
+    try{
+      var up=await sb.storage.from(BUCKET).upload(path,file,{contentType:'application/pdf',upsert:false});
+      if(up.error) throw up.error;
+      var ins=await sb.from('verbali').insert({ title:title, path:path });
+      if(ins.error) throw ins.error;
+      titleEl.value=''; fileEl.value=''; showMsg('Caricato ✓');
+      loadVerbali();
+    }catch(e){ console.warn(e); showMsg('Errore nel caricamento: '+(e&&e.message?e.message:'riprova')); }
+    btn.disabled=false;
+  }
+  function showMsg(t){ var m=$('up-msg'); m.textContent=t; m.style.display='block'; }
+  async function deleteVerbale(id){
+    var v=verbali.filter(function(x){return x.id===id;})[0]; if(!v) return;
+    if(!window.confirm('Eliminare "'+(v.title||'questo verbale')+'"?')) return;
+    try{
+      var d=await sb.from('verbali').delete().eq('id',id); if(d.error) throw d.error;
+      if(v.path){ try{ await sb.storage.from(BUCKET).remove([v.path]); }catch(e){} }
+      toast('Verbale eliminato'); loadVerbali();
+    }catch(e){ console.warn(e); toast('Errore nell\'eliminazione'); }
+  }
+  async function loadStats(){
+    var host=$('stats-body'); host.innerHTML='<p class="hint" style="padding:0 0 6px">Caricamento…</p>';
+    try{
+      var res=await sb.from('sessions').select('*').order('ended_at',{ascending:false}).limit(1000);
+      if(res.error) throw res.error;
+      var rows=(res.data||[]).map(function(r){ return {name:r.reader_name||'(senza nome)', title:r.verbale_title||'—', dur:r.duration_sec||0, when:r.ended_at}; });
+      if(!rows.length){ host.innerHTML='<p class="hint" style="padding:0 0 6px">Ancora nessuna lettura registrata.</p>'; return; }
+      host.innerHTML='<table><thead><tr><th>Lettore</th><th>Verbale</th><th>Durata</th><th>Quando</th></tr></thead><tbody>'
+        + rows.map(function(r){ return '<tr><td class="nm">'+esc(r.name)+'</td><td>'+esc(r.title)+'</td><td class="dur">'+fmtLong(r.dur)+'</td><td>'+esc(dateStr(r.when))+'</td></tr>'; }).join('')
+        + '</tbody></table>';
+    }catch(e){ console.warn('loadStats',e); host.innerHTML='<p class="hint" style="padding:0 0 6px">Impossibile caricare i dati.</p>'; }
+  }
+
+  // best-effort: se chi legge lascia la scheda, registra comunque
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState==='hidden' && current && !sessionSaved){
+      if(tickT){ clearInterval(tickT); tickT=null; }
+      logSession(current,(Date.now()-startedAt)/1000);
+    }
+  });
+})();
+</script>
+</body>
+</html>
